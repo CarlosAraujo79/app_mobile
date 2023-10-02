@@ -43,33 +43,33 @@ import Icon from 'react-native-vector-icons/FontAwesome';
     );
 
     tx.executeSql(
-      'INSERT INTO fila (id, senha, paciente, horario_marcado, medico, lugar, status, dia_marcado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      ['02', '0','Ana Beatriz', '14:55', 'Janyne Soares', 'Clínica 1', '1', '2023-09-26']
+      'INSERT INTO fila (id, senha, paciente, horario_marcado, medico, lugar, status, dia_marcado, telefone, email, endereco) VALUES (?,?,?,?, ?, ?, ?, ?, ?, ?, ?)',
+      ['02', '0','Ana Beatriz', '14:55', 'Janyne Soares', 'Clínica 1', '1', '2023-02-10', '98988223344', 'ana-beatriz@gmail.com', ' Av. Cel. Colares Moreira, 443 - Jardim Renascença, São Luís - MA, 65075-441']
     );
 
     tx.executeSql(
       'INSERT INTO fila (id, senha, paciente, horario_marcado, medico, lugar, status, dia_marcado, telefone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      ['03','0','Thomas Airan', '15:05', 'Euzébio Filho',  'Clínica 2', '1', '2023-09-26', '98987294991']
+      ['03','0','Thomas Airan', '15:05', 'Euzébio Filho',  'Clínica 2', '1', '2023-02-10', '98987294991']
     );
 
     tx.executeSql(
       'INSERT INTO fila (id, senha, paciente, horario_marcado, medico, lugar, status, telefone, dia_marcado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      ['04','0','Vinicius Cruz', '15:25', 'Davi Diniz',  'Clínica 1', '1', '98988323810', '2023-09-26']
+      ['04','0','Vinicius Cruz', '15:25', 'Davi Diniz',  'Clínica 1', '1', '98988323810', '2023-02-10']
     );
 
     tx.executeSql(
       'INSERT INTO fila (id, senha, paciente, horario_marcado, medico, lugar, status, email, dia_marcado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      ['05','0','Daniel Herrera', '15:30', 'Rodrigo Lima',  'Clínica 2', '1', 'daniel_herreira@gmail.com', '2023-09-26']
+      ['05','0','Daniel Herrera', '15:30', 'Rodrigo Lima',  'Clínica 2', '1', 'daniel_herreira@gmail.com', '2023-02-10']
     );
 
     tx.executeSql(
       'INSERT INTO fila (id, senha, paciente, horario_marcado, medico, lugar, status, dia_marcado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      ['06','0','Fabrício Pacheco', '15:50', 'Alessandro Muniz',  'Clínica 2', '1', '2023-09-26']
+      ['06','0','Fabrício Pacheco', '15:50', 'Alessandro Muniz',  'Clínica 2', '1', '2023-02-10']
     );
 
     tx.executeSql(
       'INSERT INTO fila (id, senha, paciente, horario_marcado, medico, lugar, status, dia_marcado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      ['07','0','Tania Araújo', '16:30', 'Antonio Alves',  'Clínica 1', '1', '2023-09-26']
+      ['07','0','Tania Araújo', '16:30', 'Antonio Alves',  'Clínica 1', '1', '2023-02-10']
     );
 
 
@@ -204,9 +204,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
   
   function WelcomeScreen({ route, navigation }) {
     const { nome } = route.params;
-
-    
-    
   
     const data = [
       { key: 'Pacientes para Hoje:', title: 'Lista de Pacientes', icon: 'list' , iconSize: 40},
@@ -233,6 +230,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
     );
   
     return (
+      
       <View style={styles.container}>
         <Text style={styles.welcomeText}>Olá, {nome}!</Text>
         <FlatList
@@ -285,10 +283,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
     };
 
     const handleItemPress = (index) => {
-      if (confirmedItems.includes(index)) {
-        // Item has already been confirmed, do not allow selection
-        return;
-      }
+      
     
       // Toggle selection: If the item is already selected, deselect it; otherwise, select it.
       setSelectedItem(selectedItem === index ? null : index);
@@ -379,6 +374,8 @@ import Icon from 'react-native-vector-icons/FontAwesome';
                   [uniquePassword, setStatus, selectedItemId],
                   () => {
                     console.log('Foi')
+                    const updatedFilaData = filaData.filter((item, index) => index !== selectedItemIndex);
+                    setFilaData(updatedFilaData);
                   }
                 );
           
@@ -386,7 +383,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
                 setSelectedItemIndex(null);
           
                 // Add the confirmed item index to the list
-                setConfirmedItems([...confirmedItems, selectedItemIndex]);
                 }
               );
             }
@@ -451,15 +447,13 @@ import Icon from 'react-native-vector-icons/FontAwesome';
               style={[
                 styles.itemContainer,
                 selectedItemIndex === index ? styles.selectedItem : null,
-                confirmedItems.includes(index) ? styles.confirmedItem : null,
               ]}
               onPress={() => handleItemPress(index)}
-              disabled={confirmedItems.includes(index)}
             >
-              <Text style={styles.itemText}>Nome: {item.paciente}</Text>
-              <Text style={styles.itemText}>Horário: {item.horario_marcado}</Text>
-              <Text style={styles.itemText}>Dentista: {item.medico}</Text>
-              <Text style={styles.itemText}>Clínica: {item.lugar}</Text>
+              <Text style={styles.itemText1}>Nome: {item.paciente}</Text>
+              <Text style={styles.itemText1}>Horário: {item.horario_marcado}</Text>
+              <Text style={styles.itemText1}>Dentista: {item.medico}</Text>
+              <Text style={styles.itemText1}>Clínica: {item.lugar}</Text>
               {/* Add other fields as needed */}
             </TouchableOpacity>
           )}
@@ -592,17 +586,18 @@ import Icon from 'react-native-vector-icons/FontAwesome';
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <View style={styles.itemContainer}>
-              <Text>Nome: {item.paciente}</Text>
-              <Text>Senha de Atendimento: {item.senha}</Text>
-              <Text>Clínica: {item.lugar}</Text>
-              <Text>Dentista Responsável: {item.medico}</Text>
+              
+              <Text style={styles.itemTextOdd}>Nome: {item.paciente}</Text>
+              <Text style={styles.itemText}>Senha de Atendimento: {item.senha}</Text>
+              <Text style={styles.itemTextOdd}>Clínica: {item.lugar}</Text>
+              <Text style={styles.itemText}>Dentista Responsável: {item.medico}</Text>
               {expandedPatient === item.id && (
                 <View>
                   {/* Additional patient details here */}
-                  <Text>Horário de Aprovação: {item.atendimento_aprov}</Text>
-                  <Text>Contato: {item.telefone}</Text>
-                  <Text>Email: {item.email}</Text>
-                  <Text>Endereço: {item.endereco}</Text>
+                  <Text style={styles.itemTextOdd}>Horário de Aprovação: {item.atendimento_aprov}</Text>
+                  <Text style={styles.itemText}>Contato: {item.telefone}</Text>
+                  <Text style={styles.itemTextOdd}>Email: {item.email}</Text>
+                  <Text style={styles.itemText}>Endereço: {item.endereco}</Text>
                   {/* Add more details as needed */}
                 </View>
               )}
@@ -665,24 +660,25 @@ import Icon from 'react-native-vector-icons/FontAwesome';
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <View style={styles.itemContainer}>
-              <Text>Nome: {item.paciente}</Text>
-              <Text>Procedimento: {item.procedimento}</Text>
-              <Text>Prontuário: {item.prontuario}</Text>
-              <Text>Dentista Responsável: {item.medico}</Text>
-              <Text>Clínica: {item.lugar}</Text>
+              <Text>   </Text>
+              <Text style={styles.itemTextOdd}>Nome: {item.paciente}</Text>
+              <Text style={styles.itemText}>Procedimento: {item.procedimento}</Text>
+              <Text style={styles.itemTextOdd}>Prontuário: {item.prontuario}</Text>
+              <Text style={styles.itemText}>Dentista Responsável: {item.medico}</Text>
+              <Text style={styles.itemTextOdd}>Clínica: {item.lugar}</Text>
               {expandedPatient === item.id && (
                 <View>
                   {/* Additional patient details here */}
-                  <Text>Tutor: {item.tutor}</Text>
-                  <Text>Horário Previsto: {item.horario_marcado} {formatDate(item.dia_marcado)}</Text>
-                  <Text>Horário de Aprovação: {item.atendimento_aprov}</Text>
-                  <Text>Início do Procedimento: {item.inicio_atendimento}</Text>
-                  <Text>Fim do Procedimento: {item.fim_atendimento}</Text>
-                  <Text>Duração do Procedimento: {item.duracao}</Text>
-                  <Text>Observação: {item.observacao}</Text>
-                  <Text>Contato: {item.telefone}</Text>
-                  <Text>Email: {item.email}</Text>
-                  <Text>Endereço: {item.endereco}</Text>
+                  <Text style={styles.itemText}>Tutor: {item.tutor}</Text>
+                  <Text style={styles.itemTextOdd}>Horário Previsto: {item.horario_marcado} {formatDate(item.dia_marcado)}</Text>
+                  <Text style={styles.itemText}>Horário de Aprovação: {item.atendimento_aprov}</Text>
+                  <Text style={styles.itemTextOdd}>Início do Procedimento: {item.inicio_atendimento}</Text>
+                  <Text style={styles.itemText}>Fim do Procedimento: {item.fim_atendimento}</Text>
+                  <Text style={styles.itemTextOdd}>Duração do Procedimento: {item.duracao}</Text>
+                  <Text style={styles.itemText}>Observação: {item.observacao}</Text>
+                  <Text style={styles.itemTextOdd}>Contato: {item.telefone}</Text>
+                  <Text style={styles.itemText}>Email: {item.email}</Text>
+                  <Text style={styles.itemTextOdd}>Endereço: {item.endereco}</Text>
                   {/* Add more details as needed */}
                 </View>
               )}
@@ -702,7 +698,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
           <Text style={styles.emptyText}>Nenhum paciente finalizado.</Text>
           </View>
         )}
-      </View>
+      </View> 
     );
   }
   export default function App() {
@@ -732,6 +728,10 @@ import Icon from 'react-native-vector-icons/FontAwesome';
   };
 
 const styles = StyleSheet.create({
+  backTudo:{
+    backgroundColor: '#EBE0FF',
+    zIndex: 0,
+  },
   searchModalContainer: {
     flex: 1,
     marginTop: 100, // Ajuste esta margem conforme necessário
@@ -783,10 +783,31 @@ const styles = StyleSheet.create({
     borderWidth: 1, // Add a border to separate items
     borderColor: '#E0E0E0', // Border color
   },
+  itemText1: {
+    fontSize: 16,
+    marginLeft: 10, // Adjust the margin as needed for separation
+    marginRight: 10,
+    padding: 0.5,
+  },
   itemText: {
     fontSize: 16,
     marginLeft: 10, // Adjust the margin as needed for separation
     marginRight: 10,
+    paddingTop: 3.75,
+    paddingBottom: 3.75,
+    paddingLeft: 3,
+    paddingRight: 3,
+    backgroundColor: '#ECECEC'
+  },
+  itemTextOdd: {
+    fontSize: 16,
+    marginLeft: 10, // Adjust the margin as needed for separation
+    marginRight: 10,
+    paddingTop: 3.75,
+    paddingBottom: 3.75,
+    paddingLeft: 3,
+    paddingRight: 3,
+    backgroundColor: '#D3D3D3',
   },
   evenItem: {
     fontSize: 16,
@@ -812,6 +833,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  containerHub: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EBE0FF'
   },
   input: {
     borderWidth: 1,
