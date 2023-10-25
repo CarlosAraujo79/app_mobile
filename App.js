@@ -9,72 +9,18 @@ import { Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as FileSystem from 'expo-file-system';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import axios from 'axios';
+import { createClient } from '@supabase/supabase-js';
+import 'react-native-url-polyfill/auto';
 
 
-  const db = SQLite.openDatabase('mobile.db');
+  {/*login: mobile 
+     senha: App_Daniel1010@@ */}
 
-  db.transaction(tx => {
-    tx.executeSql(
-      'DROP TABLE IF EXISTS usuarios'
-    );
-    tx.executeSql(
-      'DROP TABLE IF EXISTS fila'
-    );
-    tx.executeSql(
-      'DROP TABLE IF EXISTS sequence'
-    );
+  const supabaseUrl = 'https://hmbdwmpbncqhisrivszm.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtYmR3bXBibmNxaGlzcml2c3ptIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTYzMzMyNTEsImV4cCI6MjAxMTkwOTI1MX0.w5wc5bAwmZQgUSrmyJIjJ9O8HbSIv_FJg1tl4oPZzR8';
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
-    tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, matricula TEXT NOT NULL UNIQUE, nome TEXT NOT NULL, senha TEXT NOT NULL)'
-    );
-
-    tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS fila (id INTEGER PRIMARY KEY AUTOINCREMENT, senha TEXT NOT NULL, paciente TEXT NOT NULL, telefone TEXT, email TEXT, endereco TEXT, dia_marcado TEXT NOT NULL, horario_marcado TEXT NOT NULL, atendimento_aprov TEXT INTEGER, inicio_atendimento TEXT, fim_atendimento TEXT, duracao TEXT, procedimento TEXT, id_prontuario TEXT, observacao TEXT,  medico TEXT NOT NULL, tutor TEXT, lugar TEXT NOT NULL, status INTEGER NOT NULL)'
-    );
-    // Inserir registros
-    tx.executeSql(
-      'INSERT INTO usuarios (matricula, nome, senha) VALUES (?, ?, ?)',
-      ['002-023065', 'Carlos Araújo', 'senha123']
-    );
-
-    tx.executeSql(
-      'INSERT INTO fila (status, id, senha, paciente, telefone, email, horario_marcado, medico, lugar, endereco, dia_marcado, atendimento_aprov, inicio_atendimento, fim_atendimento, duracao, procedimento, observacao, tutor, id_prontuario) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-      ['4', '01', '0','Lucas Dawis', '98988990011', 'lucas_dawis@email.com', '14:45', 'Bruno Matos', 'Clínica 1', 'algum lugar de slz', '2023-09-14', '14:48 14/09/2023', '14:51 14/09/2023', '15:47 14/09/2023', '00:56', 'Manutenção de aparelho fixo', 'Paciente aponta queda de bráquete em dente 11 após se exaltar com derrota do time Vasco Da Gama', 'Guilherme Ribeiro', 'PR#45067']
-    );
-
-    tx.executeSql(
-      'INSERT INTO fila (id, senha, paciente, horario_marcado, medico, lugar, status, dia_marcado, telefone, email, endereco) VALUES (?,?,?,?, ?, ?, ?, ?, ?, ?, ?)',
-      ['02', '0','Ana Beatriz', '14:55', 'Janyne Soares', 'Clínica 1', '1', '2023-02-10', '98988223344', 'ana-beatriz@gmail.com', ' Av. Cel. Colares Moreira, 443 - Jardim Renascença, São Luís - MA, 65075-441']
-    );
-
-    tx.executeSql(
-      'INSERT INTO fila (id, senha, paciente, horario_marcado, medico, lugar, status, dia_marcado, telefone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      ['03','0','Thomas Airan', '15:05', 'Euzébio Filho',  'Clínica 2', '1', '2023-02-10', '98987294991']
-    );
-
-    tx.executeSql(
-      'INSERT INTO fila (id, senha, paciente, horario_marcado, medico, lugar, status, telefone, dia_marcado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      ['04','0','Vinicius Cruz', '15:25', 'Davi Diniz',  'Clínica 1', '1', '98988323810', '2023-02-10']
-    );
-
-    tx.executeSql(
-      'INSERT INTO fila (id, senha, paciente, horario_marcado, medico, lugar, status, email, dia_marcado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      ['05','0','Daniel Herrera', '15:30', 'Rodrigo Lima',  'Clínica 2', '1', 'daniel_herreira@gmail.com', '2023-02-10']
-    );
-
-    tx.executeSql(
-      'INSERT INTO fila (id, senha, paciente, horario_marcado, medico, lugar, status, dia_marcado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      ['06','0','Fabrício Pacheco', '15:50', 'Alessandro Muniz',  'Clínica 2', '1', '2023-02-10']
-    );
-
-    tx.executeSql(
-      'INSERT INTO fila (id, senha, paciente, horario_marcado, medico, lugar, status, dia_marcado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      ['07','0','Tania Araújo', '16:30', 'Antonio Alves',  'Clínica 1', '1', '2023-02-10']
-    );
-
-
-  });
-  
   const Stack = createStackNavigator();
 
   function LoginScreen({ navigation }) {
@@ -82,25 +28,42 @@ import Icon from 'react-native-vector-icons/FontAwesome';
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
   
-    const handleLogin = () => {
-      db.transaction(tx => {
-        tx.executeSql(
-          'SELECT * FROM usuarios WHERE matricula = ? AND senha = ?',
-          [matricula, password],
-          (_, results) => {
-            if (results.rows.length > 0) {
-              const nome = results.rows.item(0).nome;
-              navigation.navigate('Welcome', {nome});
-              setErrorMessage('');
-              setMatricula('');
-              setPassword('');
-            } else {
-              setErrorMessage('Usuário ou senha inválidos');
-            }
-          }
-        );
-      });
-    };
+    async function handleLogin() {
+      try {
+        // Consulta o Supabase para verificar se o usuário com a matrícula existe
+        const { data, error } = await supabase
+          .from('usuarios')
+          .select()
+          .eq('matricula', matricula);
+    
+        if (error) {
+          throw error;
+        }
+    
+        if (data.length === 0) {
+          setErrorMessage('Matrícula não encontrada');
+          return;
+        }
+    
+        // Verifica a senha
+        const user = data[0];
+        if (user.senha !== password) {
+          setErrorMessage('Senha incorreta');
+          return;
+        }
+    
+        // Se a matrícula e senha estiverem corretas, você pode redirecionar o usuário ou executar outras ações
+        // Por exemplo, aqui estou redirecionando para outra tela chamada 'Home'
+        const nome = user.nome;
+        navigation.navigate('Welcome', {nome});
+        setErrorMessage('');  
+        setMatricula('');
+        setPassword('');
+      } catch (error) {
+        console.error('Erro durante o login:', error.message);
+        setErrorMessage('Erro durante o login. Por favor, tente novamente.');
+      }
+    }
   
     return (
       
@@ -290,14 +253,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
       setSelectedItemIndex(index);
     };
     
-  
-    useEffect(() => {
-      db.transaction(tx => {
-        tx.executeSql('CREATE TABLE IF NOT EXISTS sequence (lastNumber INTEGER);');
-        tx.executeSql('INSERT OR IGNORE INTO sequence (lastNumber) VALUES (1000);');
-      });
-    }, []);
-
     useEffect(() => {
       // Load the data from the "fila" table only if it hasn't been loaded yet
       if (!dataLoaded) {
@@ -306,25 +261,23 @@ import Icon from 'react-native-vector-icons/FontAwesome';
       }
     }, [dataLoaded]); // Only run the effect when dataLoaded changes
   
-    const loadFilaData = () => {
-      db.transaction((tx) => {
-        // Consulta SQL para carregar todos os pacientes com status 1 e data de hoje
-        tx.executeSql(
-          `SELECT * FROM fila WHERE status = 1 
-           AND dia_marcado = strftime("%Y-%m-%d", "now", "localtime");`,
-          [],
-          (_, results) => {
-            const rows = results.rows;
-            const data = [];
-            for (let i = 0; i < rows.length; i++) {
-              const item = rows.item(i);
-              data.push(item);
-            }
-            setFilaData(data);
-            setOriginalFilaData(data); // Mantenha uma cópia dos dados originais
-          }
-        );
-      });
+    const loadFilaData = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('fila')
+          .select('*')
+          .eq('status', 1)
+          .eq('dia_marcado', new Date().toLocaleDateString());
+  
+        if (error) {
+          console.error('Error fetching fila data:', error);
+        } else {
+          setFilaData(data);
+          setOriginalFilaData(data); // Mantenha uma cópia dos dados originais
+        }
+      } catch (error) {
+        console.error('Error fetching fila data:', error);
+      }
     };
   
 
@@ -351,45 +304,64 @@ import Icon from 'react-native-vector-icons/FontAwesome';
       );
     };
     
-    const confirmPatient = () => {
-      db.transaction((tx) => {
-        tx.executeSql('SELECT lastNumber FROM sequence;', [], (_, results) => {
-          const lastNumber = results.rows.item(0).lastNumber;
-          const newNumber = lastNumber + 1;
-  
-          tx.executeSql('UPDATE sequence SET lastNumber = ?;', [newNumber], () => {
-            setGeneratedNumber(newNumber.toString());
-  
-            // Check if an item is selected
-            if (selectedItemIndex !== null && !confirmedItems.includes(selectedItemIndex)) {
-              const selectedQueueItem = filaData[selectedItemIndex];
-              const selectedItemId = selectedQueueItem.id;
-              const uniquePassword = `${newNumber}`;
-              const setStatus = '2';
-          
-              db.transaction((tx) => {
-                // Update the "fila" table with the unique password and status
-                tx.executeSql(
-                  'UPDATE fila SET senha = ?, status = ?, atendimento_aprov = (SELECT strftime("%H:%M %d/%m/%Y","now", "localtime")) WHERE id = ?;',
-                  [uniquePassword, setStatus, selectedItemId],
-                  () => {
-                    console.log('Foi')
-                    const updatedFilaData = filaData.filter((item, index) => index !== selectedItemIndex);
-                    setFilaData(updatedFilaData);
-                  }
-                );
-          
-                // Clear the selected item index
-                setSelectedItemIndex(null);
-          
-                // Add the confirmed item index to the list
-                }
-              );
-            }
-          });
-        });
-      });
-      alert('Paciente confirmado!')
+    const confirmPatient = async () => {
+      try {
+        // Obtenha o último número da sequência
+        const { data, error } = await supabase
+          .from('sequence')
+          .select('lastnumber');
+    
+        if (error) {
+          console.error('Error fetching lastNumber:', error);
+          return;
+        }
+    
+        const lastNumber = data[0].lastnumber;
+        const newNumber = lastNumber + 1;
+    
+        // Atualize o último número da sequência no Supabase
+        const { error: updateError } = await supabase
+          .from('sequence')
+          .update({ lastnumber: newNumber }) // Dados a serem atualizados
+          .eq('id', 1); // Condição para selecionar o registro a ser atualizado
+    
+        if (updateError) {
+          console.error('Error updating lastNumber:', updateError);
+          return;
+        }
+    
+        setGeneratedNumber(newNumber.toString());
+    
+        if (selectedItemIndex !== null && !confirmedItems.includes(selectedItemIndex)) {
+          const selectedQueueItem = filaData[selectedItemIndex];
+          const selectedItemId = selectedQueueItem.id;
+          const uniquePassword = `${newNumber}`;
+          const setStatus = '2';
+    
+          // Atualize os dados do paciente no Supabase
+          const { error: updatePatientError } = await supabase
+            .from('fila')
+            .update({ senha: uniquePassword, status: setStatus, atendimento_aprov: new Date().toLocaleString() })
+            .eq('id', selectedItemId);
+    
+          if (updatePatientError) {
+            console.error('Error updating patient data:', updatePatientError);
+            return;
+          }
+    
+          // Remova o item confirmado da lista de pacientes na tela
+          const updatedFilaData = filaData.filter((item, index) => index !== selectedItemIndex);
+          setFilaData(updatedFilaData);
+          setSelectedItemIndex(null);
+    
+          // Adicione o índice do item confirmado à lista de itens confirmados (se necessário)
+          // setConfirmedItems([...confirmedItems, selectedItemIndex]);
+        }
+    
+        alert('Paciente confirmado!');
+      } catch (error) {
+        console.error('Error confirming patient:', error);
+      }
     };
     
 
@@ -482,23 +454,27 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
   
     useEffect(() => {
-      // Execute a SQL query to retrieve confirmed patients
-      db.transaction((tx) => {
-        tx.executeSql(
-          'SELECT * FROM fila WHERE status = ?',
-          [2], // Status 2 represents confirmed patients
-          (_, results) => {
-            const rows = results.rows;
-            const confirmedPatientsArray = [];
-            for (let i = 0; i < rows.length; i++) {
-              confirmedPatientsArray.push(rows.item(i));
-            }
-            setConfirmedPatients(confirmedPatientsArray);
-            setOriginalPatients(confirmedPatientsArray);
-            setHasConfirmedPatients(confirmedPatientsArray.length > 0); // Set the flag based on the number of confirmed patients
+      // Função para buscar os pacientes confirmados do Supabase
+      async function fetchConfirmedPatients() {
+        try {
+          const { data, error } = await supabase
+            .from('fila')
+            .select('*')
+            .eq('status', 2); // Status 2 representa pacientes confirmados
+  
+          if (error) {
+            throw error;
           }
-        );
-      });
+  
+          setConfirmedPatients(data || []);
+          setOriginalPatients(data || []);
+          setHasConfirmedPatients(data && data.length > 0);
+        } catch (error) {
+          console.error('Erro ao buscar pacientes confirmados:', error);
+        }
+      }
+  
+      fetchConfirmedPatients();
     }, []);
 
     const handleUnconfirm = (itemId) => {
@@ -519,20 +495,31 @@ import Icon from 'react-native-vector-icons/FontAwesome';
       );
     };
     
-    const unconfirmPatient = (itemId) => {
-      db.transaction((tx) => {
-        tx.executeSql(
-          'UPDATE fila SET status = 1, senha = "0", atendimento_aprov = NULL WHERE id = ?;',
-          [itemId],
-          () => {
-            // Update the state to reflect the change (remove the unconfirmed patient)
-            setConfirmedPatients((prevState) =>
-              prevState.filter((patient) => patient.id !== itemId)
-            );
-          }
+    const unconfirmPatient = async (itemId) => {
+      try {
+        // Realize a atualização no Supabase para marcar o paciente como não confirmado
+        const { error } = await supabase
+          .from('fila')
+          .update({
+            status: 1,
+            senha: "0",
+            atendimento_aprov: null
+          })
+          .eq('id', itemId);
+    
+        if (error) {
+          throw error;
+        }
+    
+        // Atualize o estado para refletir a mudança (remover o paciente não confirmado)
+        setConfirmedPatients((prevState) =>
+          prevState.filter((patient) => patient.id !== itemId)
         );
-      });
-      alert('Paciente removido.');
+    
+        alert('Paciente removido.');
+      } catch (error) {
+        console.error('Erro ao remover paciente:', error);
+      }
     };
 
     const filterList = () => {
@@ -633,22 +620,22 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
   
     useEffect(() => {
-      // Execute a SQL query to retrieve confirmed patients
-      db.transaction((tx) => {
-        tx.executeSql(
-          'SELECT * FROM fila WHERE status = 4',
-          [], // Status 4 represents finished patients
-          (_, results) => {
-            const rows = results.rows;
-            const confirmedPatientsArray = [];
-            for (let i = 0; i < rows.length; i++) {
-              confirmedPatientsArray.push(rows.item(i));
-            }
-            setConfirmedPatients(confirmedPatientsArray);
-            setHasConfirmedPatients(confirmedPatientsArray.length > 0); // Set the flag based on the number of confirmed patients
-          }
-        );
-      });
+      // Execute a query to retrieve confirmed patients from Supabase
+      const fetchConfirmedPatients = async () => {
+        const { data, error } = await supabase
+          .from('fila')
+          .select('*')
+          .eq('status', 4); // Status 4 represents finished patients
+  
+        if (error) {
+          console.error('Error fetching confirmed patients:', error);
+        } else {
+          setConfirmedPatients(data);
+          setHasConfirmedPatients(data.length > 0); // Set the flag based on the number of confirmed patients
+        }
+      };
+  
+      fetchConfirmedPatients();
     }, []);
 
 
